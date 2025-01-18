@@ -1,0 +1,12 @@
+version: "3.8"
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/app
+      - ~/.ssh:/root/.ssh:ro # ホストの~/.sshディレクトリをコンテナの/root/.sshに読み取り専用でマウント
+    stdin_open: true
+    tty: true

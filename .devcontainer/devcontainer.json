@@ -1,0 +1,22 @@
+{
+  "name": "Rust Dev Container",
+  "dockerComposeFile": [
+    "../docker-compose.yml"
+  ],
+  "service": "app",
+  "workspaceFolder": "/app",
+  "remoteUser": "root",
+  "customizations": {
+    "vscode": {
+      "settings": {},
+      "extensions": [
+        //  日本語
+        "ms-ceintl.vscode-language-pack-ja",
+        //  Rustの解析
+        "rust-lang.rust-analyzer",
+        //  Docker
+        "ms-azuretools.vscode-docker"
+      ]
+    }
+  }
+}
