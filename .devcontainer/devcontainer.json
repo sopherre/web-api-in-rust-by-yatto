@@ -15,7 +15,9 @@
         //  Rustの解析
         "rust-lang.rust-analyzer",
         //  Docker
-        "ms-azuretools.vscode-docker"
+        "ms-azuretools.vscode-docker",
+        //  Markdown  
+        "yzhang.markdown-all-in-one"
       ]
     }
   }
