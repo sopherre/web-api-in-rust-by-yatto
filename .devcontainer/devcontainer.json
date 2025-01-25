@@ -1,5 +1,5 @@
 {
-  "name": "Rust Dev Container",
+  "name": "Web API in Rust",
   "dockerComposeFile": [
     "../docker-compose.yml"
   ],
