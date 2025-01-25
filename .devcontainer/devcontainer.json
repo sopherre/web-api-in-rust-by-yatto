@@ -8,7 +8,9 @@
   "remoteUser": "root",
   "customizations": {
     "vscode": {
-      "settings": {},
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "zsh"
+      },
       "extensions": [
         //  日本語
         "ms-ceintl.vscode-language-pack-ja",
@@ -20,5 +22,6 @@
         "yzhang.markdown-all-in-one"
       ]
     }
-  }
+  },
+  "postCreateCommand": "bash -c 'sh .devcontainer/setup.sh'"
 }
