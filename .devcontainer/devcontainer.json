@@ -21,7 +21,9 @@
         //  Markdown  
         "yzhang.markdown-all-in-one",
         //  Makefile言語用
-        "ms-vscode.makefile-tools"
+        "ms-vscode.makefile-tools",
+        //  tomlファイル
+        "tamasfe.even-better-toml"
       ]
     }
   },

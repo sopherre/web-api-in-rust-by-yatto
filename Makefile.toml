@@ -1,0 +1,14 @@
+# cargo make で実行するコマンド全体に共通で設定する環境変数
+[env]
+GLOBAL = "global env"
+REDIS_PORT_OUTER = 6379
+REDIS_PORT_INNER = 6379
+
+# extendでタスク毎で追加できる環境変数
+[tasks.set-env-local.env]
+LOCAL = "local env"
+
+[tasks.run]
+extend = "set-env-local"
+command = "cargo"
+args = ["watch", "-x", "run"]
