@@ -19,7 +19,9 @@
         //  Docker
         "ms-azuretools.vscode-docker",
         //  Markdown  
-        "yzhang.markdown-all-in-one"
+        "yzhang.markdown-all-in-one",
+        //  Makefile言語用
+        "ms-vscode.makefile-tools"
       ]
     }
   },
