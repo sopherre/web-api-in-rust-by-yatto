@@ -8,5 +8,6 @@ services:
       - .:/app
       - /app/target
       - ~/.ssh:/root/.ssh:ro # ホストの~/.sshディレクトリをコンテナの/root/.sshに読み取り専用でマウント
+      - ~/.gitconfig:/root/.gitconfig:ro # ホストの~/.gitconfigをコンテナに読み取り専用でマウント
     stdin_open: true
     tty: true
