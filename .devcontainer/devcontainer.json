@@ -1,8 +1,6 @@
 {
-  "name": "Web API in Rust",
-  "dockerComposeFile": [
-    "../docker-compose.yml"
-  ],
+  "name": "Web API in Rust by Yatto",
+  "dockerComposeFile": ["../docker-compose.yml"],
   "service": "app",
   "workspaceFolder": "/app",
   "remoteUser": "root",
@@ -18,7 +16,7 @@
         "rust-lang.rust-analyzer",
         //  Docker
         "ms-azuretools.vscode-docker",
-        //  Markdown  
+        //  Markdown
         "yzhang.markdown-all-in-one",
         //  Makefile言語用
         "ms-vscode.makefile-tools",
