@@ -4,21 +4,31 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-# anyhow = "1.0.75"
-# axum = { version = "0.7.5", features = ["macros"] }
-# sqlx = { version = "0.7.3", features = [
-#   "chrono",
-#   "macros",
-#   "migrate",
-#   "postgres",
-#   "runtime-tokio",
-#   "uuid",
-# ] }
-# tokio = { version = "1.37.0", features = ["full"] }
+axum = { version = "0.7.5", features = ["macros", "json"] }
+tokio = { version = "1.37.0", features = ["full"] }
+sqlx = { version = "0.7.3", features = [
+  "runtime-tokio",
+  "macros",
+  "migrate",
+  "postgres",
+  "uuid",
+  "chrono"
+] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+uuid = { version = "1", features = ["v4"] }
+chrono = { version = "0.4", features = ["serde"] }
+dotenvy = "0.15" # 環境変数管理
+tracing = "0.1" # ログ出力
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+anyhow = "1.0"
+thiserror = "1.0" # 独自エラー定義用（オプション）
+reqwest = { version = "0.11", features = ["json"] }
+
+[dev-dependencies]
+tokio = { version = "1.37.0", features = ["full"] }
+rstest = "0.18.2"
 
 [[bin]]
 name = "rust-on-docker"
 path = "src/main.rs"
-
-[dev-dependencies]
-# rstest = "0.18.2"

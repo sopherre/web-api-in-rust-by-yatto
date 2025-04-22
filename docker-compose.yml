@@ -1,6 +1,6 @@
 services:
   app:
-    container_name: app
+    container_name: rustApp
     build:
       context: .
       dockerfile: Dockerfile
@@ -11,3 +11,7 @@ services:
       - ~/.gitconfig:/root/.gitconfig:ro # ホストの~/.gitconfigをコンテナに読み取り専用でマウント
     stdin_open: true
     tty: true
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
