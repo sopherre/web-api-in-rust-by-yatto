@@ -7,7 +7,12 @@
   "customizations": {
     "vscode": {
       "settings": {
-        "terminal.integrated.defaultProfile.linux": "zsh"
+        "terminal.integrated.defaultProfile.linux": "zsh",
+        "editor.defaultFormatter": "rust-lang.rust-analyzer",
+        "rust-analyzer.server.path": "/usr/local/cargo/bin/rust-analyzer",
+        "rust-analyzer.cargo.loadOutDirsFromCheck": true,
+        "rust-analyzer.procMacro.enable": true,
+        "rust-analyzer.check.command": "clippy"
       },
       "extensions": [
         //  日本語

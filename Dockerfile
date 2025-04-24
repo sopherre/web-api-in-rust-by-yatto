@@ -9,8 +9,9 @@ RUN apt-get update && \
   apt-get install -y --no-install-recommends make && \
   rm -rf /var/lib/apt/lists/*
 
-# Rust のフォーマットツール `rustfmt` をインストール
-RUN rustup component add rustfmt
+# Rust のツールをインストール
+RUN rustup update && \
+    rustup component add rustfmt clippy rust-src rust-analyzer
 
 # `cargo-watch` をインストールし、ファイル変更を監視して自動ビルド・実行を可能にする
 RUN cargo install cargo-watch

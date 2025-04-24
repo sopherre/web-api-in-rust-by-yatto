@@ -4,10 +4,10 @@ use tokio::net::TcpListener;
 use tracing::info;
 
 mod app;
-mod logger;
-mod routes;
-mod models;
 mod error;
+mod logger;
+mod models;
+mod routes;
 
 #[tokio::main]
 async fn main() -> Result<()> {
