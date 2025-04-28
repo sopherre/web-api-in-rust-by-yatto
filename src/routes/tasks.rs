@@ -8,6 +8,7 @@ use axum::{
 };
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
+use utoipa::ToSchema;
 use uuid::Uuid;
 
 use crate::usecase::task_usecase::TaskService;
@@ -32,19 +33,19 @@ pub fn router<T: TaskService + Send + Sync + 'static + Clone>(task_service: T) -
         .with_state(state)
 }
 
-#[derive(Deserialize)]
-struct CreateTaskRequest {
+#[derive(Deserialize, ToSchema)]
+pub struct CreateTaskRequest {
     title: String,
 }
 
-#[derive(Deserialize)]
-struct UpdateTaskRequest {
+#[derive(Deserialize, ToSchema)]
+pub struct UpdateTaskRequest {
     title: Option<String>,
     completed: Option<bool>,
 }
 
-#[derive(Serialize)]
-struct TaskResponse {
+#[derive(Serialize, ToSchema)]
+pub struct TaskResponse {
     id: Uuid,
     title: String,
     completed: bool,
@@ -61,6 +62,14 @@ impl From<Task> for TaskResponse {
 }
 
 // 全件取得
+#[utoipa::path(
+    get,
+    path = "/tasks",
+    responses(
+        (status = 200, description = "タスク一覧取得成功", body = [TaskResponse])
+    ),
+    tag = "Tasks"
+)]
 async fn get_tasks<T: TaskService>(State(state): State<AppState<T>>) -> impl IntoResponse {
     match state.task_service.get_all_tasks().await {
         Ok(tasks) => Json(
@@ -75,6 +84,18 @@ async fn get_tasks<T: TaskService>(State(state): State<AppState<T>>) -> impl Int
 }
 
 // 単一取得
+#[utoipa::path(
+    get,
+    path = "/tasks/{id}",
+    params(
+        ("id" = Uuid, Path, description = "タスクのUUID")
+    ),
+    responses(
+        (status = 200, description = "タスク取得成功", body = TaskResponse),
+        (status = 404, description = "タスクが存在しない")
+    ),
+    tag = "Tasks"
+)]
 async fn get_task<T: TaskService>(
     State(state): State<AppState<T>>,
     Path(id): Path<Uuid>,
@@ -87,6 +108,15 @@ async fn get_task<T: TaskService>(
 }
 
 // 作成
+#[utoipa::path(
+    post,
+    path = "/tasks",
+    request_body = CreateTaskRequest,
+    responses(
+        (status = 201, description = "タスク作成成功", body = TaskResponse)
+    ),
+    tag = "Tasks"
+)]
 async fn create_task<T: TaskService>(
     State(state): State<AppState<T>>,
     Json(payload): Json<CreateTaskRequest>,
@@ -98,6 +128,19 @@ async fn create_task<T: TaskService>(
 }
 
 // 更新
+#[utoipa::path(
+    put,
+    path = "/tasks/{id}",
+    request_body = UpdateTaskRequest,
+    params(
+        ("id" = Uuid, Path, description = "タスクのUUID")
+    ),
+    responses(
+        (status = 200, description = "タスク更新成功", body = TaskResponse),
+        (status = 404, description = "タスクが存在しない")
+    ),
+    tag = "Tasks"
+)]
 async fn update_task<T: TaskService>(
     State(state): State<AppState<T>>,
     Path(id): Path<Uuid>,
@@ -115,6 +158,18 @@ async fn update_task<T: TaskService>(
 }
 
 // 削除
+#[utoipa::path(
+    delete,
+    path = "/tasks/{id}",
+    params(
+        ("id" = Uuid, Path, description = "タスクのUUID")
+    ),
+    responses(
+        (status = 204, description = "タスク削除成功"),
+        (status = 404, description = "タスクが存在しない")
+    ),
+    tag = "Tasks"
+)]
 async fn delete_task<T: TaskService>(
     State(state): State<AppState<T>>,
     Path(id): Path<Uuid>,

@@ -1,9 +1,10 @@
 use chrono::{DateTime, FixedOffset, TimeZone, Utc};
 use serde::{Deserialize, Serialize};
 use sqlx::FromRow;
+use utoipa::ToSchema;
 use uuid::Uuid;
 
-#[derive(Deserialize, Serialize, Clone, Debug, FromRow, Eq, PartialEq)]
+#[derive(Deserialize, Serialize, Clone, Debug, FromRow, Eq, PartialEq, ToSchema)]
 pub struct Task {
     pub id: Uuid,
     pub title: String,

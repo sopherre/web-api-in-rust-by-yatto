@@ -28,6 +28,10 @@ thiserror = "1.0" # 独自エラー定義用（オプション）
 reqwest = { version = "0.11", features = ["json"] }
 once_cell = "1.18.0"
 mockall = "0.13.1"
+utoipa = { version = "4.2.0", features = ["axum_extras", "chrono", "uuid"] }
+utoipa-swagger-ui = { version = "6.0.0", features = ["axum"] }
+utoipa-axum = "0.2.0"
+
 
 [[bin]]
 name = "rust-on-docker"

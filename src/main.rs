@@ -10,6 +10,7 @@ use crate::infrastructure::task_repository::TaskRepositoryImpl;
 use crate::usecase::task_usecase::TaskUsecase;
 
 mod app;
+mod docs;
 mod error;
 mod infrastructure;
 mod logger;
