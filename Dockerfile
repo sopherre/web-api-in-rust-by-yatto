@@ -22,6 +22,9 @@ RUN cargo install cargo-nextest
 # 複数のコマンドや依存関係を整理したりするために タスクランナーを導入
 RUN cargo install --force cargo-make
 
+# `sqlx` を使用してのDB操作をcliで行うためのツールをインストールする
+RUN cargo install sqlx-cli --no-default-features --features postgres
+
 # プロジェクトのソースコードをコンテナ内にコピー
 COPY Cargo.toml Cargo.lock /app/
 RUN cargo fetch

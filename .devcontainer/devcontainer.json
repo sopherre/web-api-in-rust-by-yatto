@@ -30,5 +30,5 @@
       ]
     }
   },
-  "postCreateCommand": "bash -c 'sh .devcontainer/setup.sh'"
+  "postCreateCommand": "sh .devcontainer/setup.sh"
 }

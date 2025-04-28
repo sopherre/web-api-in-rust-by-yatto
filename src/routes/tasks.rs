@@ -1,4 +1,4 @@
-use crate::models::task::{CreateTask, Task, UpdateTask};
+use crate::models::task::Task;
 use axum::{
     extract::{Json, Path, State},
     http::StatusCode,
@@ -6,76 +6,122 @@ use axum::{
     routing::get,
     Router,
 };
-use std::sync::{Arc, Mutex};
+use serde::{Deserialize, Serialize};
+use std::sync::Arc;
+use uuid::Uuid;
 
-type TaskList = Arc<Mutex<Vec<Task>>>;
+use crate::usecase::task_usecase::TaskService;
 
-pub fn router(task_list: TaskList) -> Router {
+#[derive(Clone)]
+pub struct AppState<T: TaskService> {
+    pub task_service: Arc<T>,
+}
+
+pub fn router<T: TaskService + Send + Sync + 'static + Clone>(task_service: T) -> Router {
+    let state = AppState {
+        task_service: Arc::new(task_service),
+    };
     Router::new()
-        .route("/tasks", get(get_tasks).post(create_task))
+        .route("/tasks", get(get_tasks::<T>).post(create_task::<T>))
         .route(
             "/tasks/:id",
-            get(get_task).put(update_task).delete(delete_task),
+            get(get_task::<T>)
+                .put(update_task::<T>)
+                .delete(delete_task::<T>),
         )
-        .with_state(task_list)
+        .with_state(state)
+}
+
+#[derive(Deserialize)]
+struct CreateTaskRequest {
+    title: String,
+}
+
+#[derive(Deserialize)]
+struct UpdateTaskRequest {
+    title: Option<String>,
+    completed: Option<bool>,
+}
+
+#[derive(Serialize)]
+struct TaskResponse {
+    id: Uuid,
+    title: String,
+    completed: bool,
+}
+
+impl From<Task> for TaskResponse {
+    fn from(task: Task) -> Self {
+        Self {
+            id: task.id,
+            title: task.title,
+            completed: task.completed,
+        }
+    }
 }
 
 // 全件取得
-async fn get_tasks(state: State<TaskList>) -> impl IntoResponse {
-    let tasks = state.lock().unwrap();
-    Json(tasks.clone())
+async fn get_tasks<T: TaskService>(State(state): State<AppState<T>>) -> impl IntoResponse {
+    match state.task_service.get_all_tasks().await {
+        Ok(tasks) => Json(
+            tasks
+                .into_iter()
+                .map(TaskResponse::from)
+                .collect::<Vec<_>>(),
+        )
+        .into_response(),
+        Err(_) => (StatusCode::INTERNAL_SERVER_ERROR, "Failed to fetch todos").into_response(),
+    }
 }
 
 // 単一取得
-async fn get_task(state: State<TaskList>, Path(id): Path<u32>) -> impl IntoResponse {
-    let tasks = state.lock().unwrap();
-    match tasks.iter().find(|t| t.id == id) {
-        Some(task) => Json(task.clone()).into_response(),
-        None => (StatusCode::NOT_FOUND, "Task not found").into_response(),
+async fn get_task<T: TaskService>(
+    State(state): State<AppState<T>>,
+    Path(id): Path<Uuid>,
+) -> impl IntoResponse {
+    match state.task_service.get_task_by_id(id).await {
+        Ok(Some(task)) => Json(TaskResponse::from(task)).into_response(),
+        Ok(None) => (StatusCode::NOT_FOUND, "Task not found").into_response(),
+        Err(_) => (StatusCode::INTERNAL_SERVER_ERROR, "Failed to fetch todo").into_response(),
     }
 }
 
 // 作成
-async fn create_task(state: State<TaskList>, Json(task): Json<CreateTask>) -> impl IntoResponse {
-    let mut tasks = state.lock().unwrap();
-    let new_task: Task = Task {
-        id: tasks.len() as u32 + 1,
-        title: task.title,
-        completed: false,
-    };
-    tasks.push(new_task.clone());
-    (StatusCode::CREATED, Json(new_task)).into_response()
+async fn create_task<T: TaskService>(
+    State(state): State<AppState<T>>,
+    Json(payload): Json<CreateTaskRequest>,
+) -> impl IntoResponse {
+    match state.task_service.create_task(payload.title).await {
+        Ok(task) => (StatusCode::CREATED, Json(TaskResponse::from(task))).into_response(),
+        Err(_) => (StatusCode::INTERNAL_SERVER_ERROR, "Failed to create todo").into_response(),
+    }
 }
 
 // 更新
-async fn update_task(
-    state: State<TaskList>,
-    Path(id): Path<u32>,
-    Json(updated): Json<UpdateTask>,
+async fn update_task<T: TaskService>(
+    State(state): State<AppState<T>>,
+    Path(id): Path<Uuid>,
+    Json(payload): Json<UpdateTaskRequest>,
 ) -> impl IntoResponse {
-    let mut tasks = state.lock().unwrap();
-    match tasks.iter_mut().find(|t| t.id == id) {
-        Some(task) => {
-            if let Some(title) = updated.title {
-                task.title = title;
-            }
-            if let Some(completed) = updated.completed {
-                task.completed = completed;
-            }
-            Json(task.clone()).into_response()
-        }
-        None => (StatusCode::NOT_FOUND, "Task not found").into_response(),
+    match state
+        .task_service
+        .update_task(id, payload.title, payload.completed)
+        .await
+    {
+        Ok(task) => Json(TaskResponse::from(task)).into_response(),
+        Err(sqlx::Error::RowNotFound) => (StatusCode::NOT_FOUND, "Task not found").into_response(),
+        Err(_) => (StatusCode::INTERNAL_SERVER_ERROR, "Failed to update todo").into_response(),
     }
 }
 
 // 削除
-async fn delete_task(state: State<TaskList>, Path(id): Path<u32>) -> impl IntoResponse {
-    let mut tasks = state.lock().unwrap();
-    let len_before = tasks.len();
-    tasks.retain(|t| t.id != id);
-    if tasks.len() == len_before {
-        (StatusCode::NOT_FOUND, "Task not found").into_response()
-    } else {
-        (StatusCode::NO_CONTENT, "").into_response()
+async fn delete_task<T: TaskService>(
+    State(state): State<AppState<T>>,
+    Path(id): Path<Uuid>,
+) -> impl IntoResponse {
+    match state.task_service.delete_task(id).await {
+        Ok(()) => StatusCode::NO_CONTENT.into_response(),
+        Err(sqlx::Error::RowNotFound) => (StatusCode::NOT_FOUND, "Task not found").into_response(),
+        Err(_) => (StatusCode::INTERNAL_SERVER_ERROR, "Failed to delete todo").into_response(),
     }
 }

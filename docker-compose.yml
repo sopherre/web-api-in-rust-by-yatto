@@ -1,4 +1,17 @@
 services:
+  db:
+    container_name: postgresDB
+    image: postgres:16
+    env_file:
+      - .env
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      - TZ=Asia/Tokyo
+      - PGTZ=Asia/Tokyo
+  
   app:
     container_name: rustApp
     build:
@@ -15,3 +28,8 @@ services:
       - "3000:3000"
     environment:
       - PORT=3000
+    depends_on:
+      - db
+
+volumes:
+    postgres_data:

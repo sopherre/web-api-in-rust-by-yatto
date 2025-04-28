@@ -1,4 +1,3 @@
-pub mod task;
-pub mod user;
+pub mod task_repository;
 #[cfg(test)]
 pub mod tests;
